@@ -1,0 +1,35 @@
+function P = transitionProbabilityMatrix( G,  A,  domA, size_Dom_a, w, numNeighborVertices, numNeighborAttributeVertices )
+    N = size(G, 1);
+    m = size(A, 2);
+    P = zeros(N+sum(size_Dom_a));
+    N_A = zeros(1, sum(size_Dom_a));
+    d = 0;
+    
+    for i = 1:size(size_Dom_a,2)
+        for j = 1:size_Dom_a(i)
+            N_A(j+d) = numNeighborAttributeVertices(i, j);        
+        end
+        d = d + size_Dom_a(i);     
+    end    
+
+    for i = 1:N
+        p_i = 1/(sum(w) + numNeighborVertices(i));
+        
+        % prijelaz od vi do vj kroz strukturalni vrh
+        P(i, 1:N) = G(i, 1:N) * p_i;
+        
+        % prijelaz kroz atributni vrh...v_i do v_jk %i v_ik do v_j
+        p=0;
+        for j = 1:size(size_Dom_a,2)
+            for k = 1:size_Dom_a(j)
+                if ( A(i,j) == domA(k+p) ) P(i, N+k+p) = w(j)*p_i;
+                                           P(N+k+p, i) = 1/N_A(p+k);
+                end
+            end 
+           p = p + size_Dom_a(j); 
+        end     
+    end
+    
+   
+
+end
